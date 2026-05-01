@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transit Data Manager</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900 h-screen flex flex-col">
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200 px-6 py-4">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+          <i data-lucide="bus" class="w-6 h-6 text-white"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-gray-900">Transit Data Manager</h1>
+          <p class="text-xs text-gray-500">Route & Station Configuration</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="text-sm text-gray-500" id="currentTime"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="flex-1 flex overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
+      <nav class="p-4 space-y-1">
+        <button onclick="showView('routes')" id="nav-routes" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium bg-blue-50 text-blue-700">
+          <i data-lucide="route" class="w-5 h-5"></i>
+          Routes
+        </button>
+        <button onclick="showView('stations')" id="nav-stations" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">
+          <i data-lucide="map-pin" class="w-5 h-5"></i>
+          Stations
+        </button>
+        <button onclick="showView('export')" id="nav-export" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">
+          <i data-lucide="download" class="w-5 h-5"></i>
+          Export
+        </button>
+      </nav>
+      
+      <div class="mt-auto p-4 border-t border-gray-200">
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3">
+          <div class="flex items-center gap-2 mb-2">
+            <i data-lucide="alert-circle" class="w-4 h-4 text-amber-600"></i>
+            <span class="text-sm font-medium text-amber-800">Status</span>
+          </div>
+          <p class="text-xs text-amber-700">5 of 13 stations configured</p>
+          <div class="mt-2 h-1.5 bg-amber-200 rounded-full overflow-hidden">
+            <div class="h-full bg-amber-500 rounded-full" style="width: 38%"></div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Content Area -->
+    <main class="flex-1 overflow-auto p-6">
+      <!-- Routes View -->
+      <div id="view-routes" class="view">
+        <div class="max-w-4xl">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h2 class="text-xl font-bold text-gray-900">Routes</h2>
+              <p class="text-sm text-gray-500 mt-1">Manage transit routes and their stations</p>
+            </div>
+            <button onclick="openAddRouteModal()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              Add Route
+            </button>
+          </div>
+
+          <div class="space-y-4" id="routesList">
+            <!-- Routes populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Stations View -->
+      <div id="view-stations" class="view hidden">
+        <div class="max-w-5xl">
+          <div class="flex items-center justify-between mb-6">
+            <div>
+              <h2 class="text-xl font-bold text-gray-900">Stations</h2>
+              <p class="text-sm text-gray-500 mt-1">Configure station details and announcements</p>
+            </div>
+            <div class="flex gap-2">
+              <div class="relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                <input type="text" id="stationSearch" placeholder="Search stations..." 
+                  class="pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-64">
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Station</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Type</th>
+                  <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Line</th>
+                  <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Audio</th>
+                  <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Display</th>
+                  <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">Status</th>
+                  <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Action</th>
+                </tr>
+              </thead>
+              <tbody id="stationsTable" class="divide-y divide-gray-200">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Export View -->
+      <div id="view-export" class="view hidden">
+        <div class="max-w-3xl mx-auto text-center py-12">
+          <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i data-lucide="download" class="w-8 h-8 text-blue-600"></i>
+          </div>
+          <h2 class="text-xl font-bold text-gray-900 mb-2">Export Data</h2>
+          <p class="text-gray-500 mb-6">Download your route and station configuration</p>
+          <div class="flex justify-center gap-3">
+            <button onclick="exportData('json')" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium">
+              Export as JSON
+            </button>
+            <button onclick="exportData('csv')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
+              Export as CSV
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Station Config Modal -->
+  <div id="stationModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-xl m-4">
+      <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold text-gray-900" id="modalStationName">Station Name</h3>
+          <p class="text-sm text-gray-500">Configure display and audio settings</p>
+        </div>
+        <button onclick="closeStationModal()" class="p-2 hover:bg-gray-100 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5 text-gray-400"></i>
+        </button>
+      </div>
+      
+      <div class="p-6 overflow-y-auto max-h-[60vh]">
+        <div class="space-y-6">
+          <!-- Basic Info -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Station Name</label>
+              <input type="text" id="editStationName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Short Name</label>
+              <input type="text" id="editStationShort" placeholder="e.g. Hbf" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+          </div>
+
+          <!-- Display Settings -->
+          <div class="border-t border-gray-200 pt-6">
+            <h4 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <i data-lucide="monitor" class="w-4 h-4 text-gray-400"></i>
+              Display Settings
+            </h4>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-gray-500 mb-1">Front Display</label>
+                <input type="text" id="editDisplayFront" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-500 mb-1">Side Display</label>
+                <input type="text" id="editDisplaySide" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-500 mb-1">Rear Display</label>
+                <input type="text" id="editDisplayBack" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-gray-500 mb-1">TFT Display</label>
+                <input type="text" id="editDisplayTFT" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              </div>
+            </div>
+          </div>
+
+          <!-- Audio Settings -->
+          <div class="border-t border-gray-200 pt-6">
+            <h4 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <i data-lucide="volume-2" class="w-4 h-4 text-gray-400"></i>
+              Audio Settings
+            </h4>
+            <div>
+              <label class="block text-xs font-medium text-gray-500 mb-1">Announcement Pattern</label>
+              <input type="text" id="editAudioPattern" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <p class="text-xs text-gray-400 mt-1">Use {STATION}, {LINE}, {DEST} as placeholders</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+        <button onclick="closeStationModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium">Cancel</button>
+        <button onclick="saveStationConfig()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Route Modal -->
+  <div id="addRouteModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-xl w-full max-w-md shadow-xl m-4">
+      <div class="px-6 py-4 border-b border-gray-200">
+        <h3 class="text-lg font-bold text-gray-900">Add New Route</h3>
+      </div>
+      <div class="p-6">
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Route Number</label>
+          <input type="text" id="newRouteNum" placeholder="e.g. 42" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+        </div>
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Stops</label>
+          <div id="newRouteStops" class="space-y-2 mb-2"></div>
+          <div class="flex gap-2">
+            <input type="text" id="newStopInput" placeholder="Stop name" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button onclick="addStopToRoute()" class="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm">Add</button>
+          </div>
+        </div>
+      </div>
+      <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+        <button onclick="closeAddRouteModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium">Cancel</button>
+        <button onclick="createRoute()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">Create Route</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-4 right-4 bg-gray-900 text-white px-4 py-3 rounded-lg shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center gap-2">
+    <i data-lucide="check-circle" class="w-5 h-5 text-green-400"></i>
+    <span id="toastMsg">Done</span>
+  </div>
+
+  <script>
+    // Data
+    let routes = [
+      { id: 1, number: "42", stops: ["Central Station", "Market Square", "University", "Hospital", "Industrial Park"] },
+      { id: 2, number: "15", stops: ["South Station", "City Hall", "Shopping Center"] }
+    ];
+
+    let stations = [
+      { id: 1, name: "Central Station", short: "Hbf", type: "terminal", line: "42", audio: true, display: true, status: "complete", displayFront: "42 → Industrial Park", displaySide: "42 Industrial Park", displayBack: "Line 42", displayTFT: "Central Station | Hauptbahnhof", audioPattern: "Next stop: {STATION}" },
+      { id: 2, name: "Market Square", short: "", type: "regular", line: "42", audio: true, display: false, status: "incomplete", displayFront: "42 → Industrial Park", displaySide: "42 Industrial Park", displayBack: "Line 42", displayTFT: "", audioPattern: "Next stop: {STATION}" },
+      { id: 3, name: "University", short: "Uni", type: "junction", line: "42", audio: true, display: true, status: "complete", displayFront: "42 → Industrial Park", displaySide: "42 Industrial Park", displayBack: "Line 42", displayTFT: "University | Main Campus", audioPattern: "Next stop: {STATION}" },
+      { id: 4, name: "Hospital", short: "", type: "regular", line: "42", audio: true, display: false, status: "incomplete", displayFront: "", displaySide: "", displayBack: "", displayTFT: "", audioPattern: "" },
+      { id: 5, name: "Industrial Park", short: "", type: "terminal", line: "42", audio: true, display: true, status: "complete", displayFront: "42 Terminus", displaySide: "42 Industrial Park", displayBack: "Line 42", displayTFT: "Industrial Park | End of Line", audioPattern: "Final stop: {STATION}" },
+      { id: 6, name: "South Station", short: "Süd", type: "terminal", line: "15", audio: true, display: true, status: "complete", displayFront: "15 → Shopping Center", displaySide: "15 Shopping Center", displayBack: "Line 15", displayTFT: "", audioPattern: "Next stop: {STATION}" },
+      { id: 7, name: "City Hall", short: "", type: "regular", line: "15", audio: true, display: false, status: "incomplete", displayFront: "", displaySide: "", displayBack: "", displayTFT: "City Hall | Events & Tickets", audioPattern: "" },
+      { id: 8, name: "Shopping Center", short: "", type: "junction", line: "15", audio: true, display: true, status: "complete", displayFront: "15 Terminus", displaySide: "15 Shopping Center", displayBack: "Line 15", displayTFT: "", audioPattern: "Final stop: {STATION}" }
+    ];
+
+    let editingStation = null;
+    let newRouteStops = [];
+
+    // Init
+    lucide.createIcons();
+    updateTime();
+    setInterval(updateTime, 60000);
+    renderRoutes();
+    renderStations();
+
+    function updateTime() {
+      document.getElementById('currentTime').textContent = new Date().toLocaleString('en-US', { 
+        month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+      });
+    }
+
+    function showView(view) {
+      document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+      document.getElementById('view-' + view).classList.remove('hidden');
+      
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-blue-50', 'text-blue-700');
+        btn.classList.add('text-gray-600');
+      });
+      document.getElementById('nav-' + view).classList.add('bg-blue-50', 'text-blue-700');
+      document.getElementById('nav-' + view).classList.remove('text-gray-600');
+      
+      lucide.createIcons();
+    }
+
+    function renderRoutes() {
+      const container = document.getElementById('routesList');
+      container.innerHTML = routes.map(route => `
+        <div class="bg-white border border-gray-200 rounded-lg p-4">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                <span class="font-bold text-blue-700">${route.number}</span>
+              </div>
+              <div>
+                <h3 class="font-semibold text-gray-900">Route ${route.number}</h3>
+                <p class="text-sm text-gray-500">${route.stops.length} stops</p>
+              </div>
+            </div>
+            <button onclick="toggleRoute(${route.id})" class="p-2 hover:bg-gray-100 rounded-lg">
+              <i data-lucide="chevron-down" class="w-5 h-5 text-gray-400"></i>
+            </button>
+          </div>
+          <div class="pl-4 border-l-2 border-gray-200 space-y-2">
+            ${route.stops.map((stop, i) => `
+              <div class="flex items-center gap-3 py-2">
+                <div class="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-xs font-medium text-gray-600">${i + 1}</div>
+                <span class="text-sm text-gray-700">${stop}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function renderStations() {
+      const tbody = document.getElementById('stationsTable');
+      tbody.innerHTML = stations.map(s => `
+        <tr class="hover:bg-gray-50">
+          <td class="px-4 py-3">
+            <div class="font-medium text-gray-900">${s.name}</div>
+            ${s.short ? `<div class="text-xs text-gray-500">${s.short}</div>` : ''}
+          </td>
+          <td class="px-4 py-3">
+            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
+              s.type === 'terminal' ? 'bg-red-100 text-red-700' : 
+              s.type === 'junction' ? 'bg-amber-100 text-amber-700' : 
+              'bg-gray-100 text-gray-700'
+            }">${s.type}</span>
+          </td>
+          <td class="px-4 py-3 text-sm text-gray-600">${s.line}</td>
+          <td class="px-4 py-3 text-center">
+            ${s.audio ? '<i data-lucide="check" class="w-4 h-4 text-green-500 mx-auto"></i>' : '<i data-lucide="x" class="w-4 h-4 text-red-400 mx-auto"></i>'}
+          </td>
+          <td class="px-4 py-3 text-center">
+            ${s.display ? '<i data-lucide="check" class="w-4 h-4 text-green-500 mx-auto"></i>' : '<i data-lucide="x" class="w-4 h-4 text-red-400 mx-auto"></i>'}
+          </td>
+          <td class="px-4 py-3 text-center">
+            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
+              s.status === 'complete' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+            }">${s.status}</span>
+          </td>
+          <td class="px-4 py-3 text-right">
+            <button onclick="openStationModal(${s.id})" class="p-2 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600">
+              <i data-lucide="pencil" class="w-4 h-4"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function openStationModal(id) {
+      editingStation = stations.find(s => s.id === id);
+      if (!editingStation) return;
+      
+      document.getElementById('modalStationName').textContent = editingStation.name;
+      document.getElementById('editStationName').value = editingStation.name;
+      document.getElementById('editStationShort').value = editingStation.short;
+      document.getElementById('editDisplayFront').value = editingStation.displayFront;
+      document.getElementById('editDisplaySide').value = editingStation.displaySide;
+      document.getElementById('editDisplayBack').value = editingStation.displayBack;
+      document.getElementById('editDisplayTFT').value = editingStation.displayTFT;
+      document.getElementById('editAudioPattern').value = editingStation.audioPattern;
+      
+      document.getElementById('stationModal').classList.remove('hidden');
+      document.getElementById('stationModal').classList.add('flex');
+      lucide.createIcons();
+    }
+
+    function closeStationModal() {
+      document.getElementById('stationModal').classList.add('hidden');
+      document.getElementById('stationModal').classList.remove('flex');
+      editingStation = null;
+    }
+
+    function saveStationConfig() {
+      if (!editingStation) return;
+      
+      editingStation.name = document.getElementById('editStationName').value;
+      editingStation.short = document.getElementById('editStationShort').value;
+      editingStation.displayFront = document.getElementById('editDisplayFront').value;
+      editingStation.displaySide = document.getElementById('editDisplaySide').value;
+      editingStation.displayBack = document.getElementById('editDisplayBack').value;
+      editingStation.displayTFT = document.getElementById('editDisplayTFT').value;
+      editingStation.audioPattern = document.getElementById('editAudioPattern').value;
+      editingStation.audio = !!editingStation.audioPattern;
+      editingStation.display = !!(editingStation.displayFront || editingStation.displaySide || editingStation.displayBack);
+      editingStation.status = (editingStation.audio && editingStation.display) ? 'complete' : 'incomplete';
+      
+      renderStations();
+      closeStationModal();
+      showToast('Station saved');
+    }
+
+    function openAddRouteModal() {
+      newRouteStops = [];
+      document.getElementById('newRouteNum').value = '';
+      document.getElementById('newRouteStops').innerHTML = '';
+      document.getElementById('addRouteModal').classList.remove('hidden');
+      document.getElementById('addRouteModal').classList.add('flex');
+    }
+
+    function closeAddRouteModal() {
+      document.getElementById('addRouteModal').classList.add('hidden');
+      document.getElementById('addRouteModal').classList.remove('flex');
+    }
+
+    function addStopToRoute() {
+      const input = document.getElementById('newStopInput');
+      if (input.value.trim()) {
+        newRouteStops.push(input.value.trim());
+        input.value = '';
+        renderNewRouteStops();
+      }
+    }
+
+    function renderNewRouteStops() {
+      document.getElementById('newRouteStops').innerHTML = newRouteStops.map((stop, i) => `
+        <div class="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded text-sm">
+          <span class="flex-1">${stop}</span>
+          <button onclick="removeStop(${i})" class="text-red-400 hover:text-red-600">
+            <i data-lucide="x" class="w-4 h-4"></i>
+          </button>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function removeStop(index) {
+      newRouteStops.splice(index, 1);
+      renderNewRouteStops();
+    }
+
+    function createRoute() {
+      const num = document.getElementById('newRouteNum').value;
+      if (!num || newRouteStops.length === 0) {
+        showToast('Please enter route number and at least one stop');
+        return;
+      }
+      
+      routes.push({
+        id: routes.length + 1,
+        number: num,
+        stops: [...newRouteStops]
+      });
+      
+      renderRoutes();
+      closeAddRouteModal();
+      showToast('Route created');
+    }
+
+    function exportData(format) {
+      showToast(`Exporting as ${format.toUpperCase()}...`);
+    }
+
+    function showToast(msg) {
+      document.getElementById('toastMsg').textContent = msg;
+      const toast = document.getElementById('toast');
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2500);
+    }
+
+    // Search
+    document.getElementById('stationSearch')?.addEventListener('input', (e) => {
+      const term = e.target.value.toLowerCase();
+      document.querySelectorAll('#stationsTable tr').forEach(row => {
+        const name = row.querySelector('td')?.textContent.toLowerCase() || '';
+        row.style.display = name.includes(term) ? '' : 'none';
+      });
+    });
+
+    // Enter key on stop input
+    document.getElementById('newStopInput')?.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') addStopToRoute();
+    });
+  </script>
+</body>
+</html>
