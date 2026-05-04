@@ -12,6 +12,8 @@
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    .audio-wave { background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 50%, #3b82f6 100%); background-size: 200% 100%; animation: wave 2s ease-in-out infinite; }
+    @keyframes wave { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
   </style>
 </head>
 <body class="bg-white text-gray-900 h-screen flex flex-col">
@@ -67,9 +69,9 @@
     </aside>
 
     <!-- Content Area -->
-    <main class="flex-1 overflow-auto p-6">
+    <main class="flex-1 overflow-auto">
       <!-- Routes View -->
-      <div id="view-routes" class="view">
+      <div id="view-routes" class="view p-6">
         <div class="max-w-4xl">
           <div class="flex items-center justify-between mb-6">
             <div>
@@ -88,8 +90,8 @@
         </div>
       </div>
 
-      <!-- Stations View -->
-      <div id="view-stations" class="view hidden">
+      <!-- Stations List View -->
+      <div id="view-stations" class="view p-6">
         <div class="max-w-5xl">
           <div class="flex items-center justify-between mb-6">
             <div>
@@ -126,8 +128,420 @@
         </div>
       </div>
 
+      <!-- Station Config View (Full Page) -->
+      <div id="view-station-config" class="view hidden">
+        <!-- Top Header -->
+        <div class="bg-white border-b border-gray-200 px-6 py-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+              <button onclick="showView('stations')" class="p-2 hover:bg-gray-100 rounded-lg text-gray-400">
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+              </button>
+              <h2 class="text-xl font-bold text-gray-900" id="configStationName">Station Name</h2>
+            </div>
+            <div class="flex items-center gap-2">
+              <button class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium text-gray-700">
+                <i data-lucide="tags" class="w-4 h-4"></i>
+                Platzhalter verwalten
+              </button>
+              <button class="flex items-center gap-2 px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 text-sm font-medium">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                Löschen
+              </button>
+              <button onclick="saveStationConfigFull()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                Speichern
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-6 space-y-6">
+          <!-- Row 1: Basic Info -->
+          <div class="grid grid-cols-4 gap-4">
+            <div>
+              <label class="block text-xs font-medium text-gray-500 mb-1.5">Richtung</label>
+              <input type="text" id="cfgRichtung" placeholder="z.B. Stadtmitte" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-500 mb-1.5">Linie</label>
+              <input type="text" id="cfgLinie" placeholder="z.B. 78" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-500 mb-1.5">Fahrtenster</label>
+              <input type="text" id="cfgFahrtenster" placeholder="z.B. 06:00-22:00" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block text-xs font-medium text-gray-500 mb-1.5">Fahrzeugtyp</label>
+              <select id="cfgFahrzeugtyp" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                <option>Alle Fahrzeugtypen</option>
+                <option>Standard</option>
+                <option>Gelenkbus</option>
+                <option>Doppeldecker</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Three Column Layout -->
+          <div class="grid grid-cols-3 gap-6">
+            <!-- Ansagen Column -->
+            <div class="space-y-4">
+              <div class="flex items-center gap-2 pb-2 border-b border-gray-200">
+                <input type="checkbox" id="enableAnsagen" checked class="w-4 h-4 text-blue-600 rounded">
+                <label for="enableAnsagen" class="font-semibold text-gray-900">Ansagen</label>
+              </div>
+
+              <!-- Station -->
+              <div class="border border-gray-200 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-medium text-gray-500 uppercase">Station</span>
+                  <select class="text-xs border border-gray-300 rounded px-2 py-1">
+                    <option>Bei Ankunft</option>
+                    <option>Vor Abfahrt</option>
+                  </select>
+                </div>
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2">
+                    <button class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100">
+                      <i data-lucide="play" class="w-3 h-3 text-gray-600"></i>
+                    </button>
+                    <span class="text-xs text-gray-500 w-6">DE</span>
+                    <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div class="h-full w-1/3 bg-blue-500 rounded-full"></div>
+                    </div>
+                    <span class="text-xs text-gray-400">0:04/0:12</span>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="pencil" class="w-3 h-3 text-gray-400"></i></button>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="trash-2" class="w-3 h-3 text-red-400"></i></button>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100">
+                      <i data-lucide="play" class="w-3 h-3 text-gray-600"></i>
+                    </button>
+                    <span class="text-xs text-gray-500 w-6">Eng</span>
+                    <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div class="h-full w-1/3 bg-blue-500 rounded-full"></div>
+                    </div>
+                    <span class="text-xs text-gray-400">0:04/0:12</span>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="pencil" class="w-3 h-3 text-gray-400"></i></button>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="trash-2" class="w-3 h-3 text-red-400"></i></button>
+                  </div>
+                </div>
+                <div class="mt-3 flex items-center gap-3 text-xs">
+                  <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <i data-lucide="plus" class="w-3 h-3"></i> Neue Sprache
+                  </button>
+                  <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <i data-lucide="mic" class="w-3 h-3"></i> Audio aufnehmen
+                  </button>
+                  <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <i data-lucide="upload" class="w-3 h-3"></i> Datei hochladen
+                  </button>
+                </div>
+              </div>
+
+              <!-- Nächste Station -->
+              <div class="border border-gray-200 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-medium text-gray-500 uppercase">Nächste Station</span>
+                  <select class="text-xs border border-gray-300 rounded px-2 py-1">
+                    <option>Vor Abfahrt</option>
+                    <option>Bei Ankunft</option>
+                  </select>
+                </div>
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2">
+                    <button class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100">
+                      <i data-lucide="play" class="w-3 h-3 text-gray-600"></i>
+                    </button>
+                    <span class="text-xs text-gray-500 w-6">DE</span>
+                    <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div class="h-full w-1/3 bg-blue-500 rounded-full"></div>
+                    </div>
+                    <span class="text-xs text-gray-400">0:04/0:12</span>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="pencil" class="w-3 h-3 text-gray-400"></i></button>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="trash-2" class="w-3 h-3 text-red-400"></i></button>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100">
+                      <i data-lucide="play" class="w-3 h-3 text-gray-600"></i>
+                    </button>
+                    <span class="text-xs text-gray-500 w-6">Eng</span>
+                    <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div class="h-full w-1/3 bg-blue-500 rounded-full"></div>
+                    </div>
+                    <span class="text-xs text-gray-400">0:04/0:12</span>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="pencil" class="w-3 h-3 text-gray-400"></i></button>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="trash-2" class="w-3 h-3 text-red-400"></i></button>
+                  </div>
+                </div>
+                <div class="mt-3 flex items-center gap-3 text-xs">
+                  <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <i data-lucide="plus" class="w-3 h-3"></i> Neue Sprache
+                  </button>
+                  <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <i data-lucide="mic" class="w-3 h-3"></i> Audio aufnehmen
+                  </button>
+                  <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <i data-lucide="upload" class="w-3 h-3"></i> Datei hochladen
+                  </button>
+                </div>
+              </div>
+
+              <!-- Via Stationen -->
+              <div class="border border-gray-200 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-medium text-gray-500 uppercase">Via Stationen</span>
+                  <select class="text-xs border border-gray-300 rounded px-2 py-1">
+                    <option>Während der Fahrt</option>
+                  </select>
+                </div>
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2">
+                    <button class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100">
+                      <i data-lucide="play" class="w-3 h-3 text-gray-600"></i>
+                    </button>
+                    <span class="text-xs text-gray-500 w-6">DE</span>
+                    <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div class="h-full w-1/3 bg-blue-500 rounded-full"></div>
+                    </div>
+                    <span class="text-xs text-gray-400">0:04/0:12</span>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="pencil" class="w-3 h-3 text-gray-400"></i></button>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="trash-2" class="w-3 h-3 text-red-400"></i></button>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100">
+                      <i data-lucide="play" class="w-3 h-3 text-gray-600"></i>
+                    </button>
+                    <span class="text-xs text-gray-500 w-6">Eng</span>
+                    <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div class="h-full w-1/3 bg-blue-500 rounded-full"></div>
+                    </div>
+                    <span class="text-xs text-gray-400">0:04/0:12</span>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="pencil" class="w-3 h-3 text-gray-400"></i></button>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="trash-2" class="w-3 h-3 text-red-400"></i></button>
+                  </div>
+                </div>
+                <div class="mt-3 flex items-center gap-3 text-xs">
+                  <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <i data-lucide="plus" class="w-3 h-3"></i> Neue Sprache
+                  </button>
+                  <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <i data-lucide="mic" class="w-3 h-3"></i> Audio aufnehmen
+                  </button>
+                  <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <i data-lucide="upload" class="w-3 h-3"></i> Datei hochladen
+                  </button>
+                </div>
+              </div>
+
+              <!-- Letzte Station -->
+              <div class="border border-gray-200 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-medium text-gray-500 uppercase">Letzte Station</span>
+                  <select class="text-xs border border-gray-300 rounded px-2 py-1">
+                    <option>Bei Ankunft</option>
+                  </select>
+                </div>
+                <div class="space-y-2">
+                  <div class="flex items-center gap-2">
+                    <button class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100">
+                      <i data-lucide="play" class="w-3 h-3 text-gray-600"></i>
+                    </button>
+                    <span class="text-xs text-gray-500 w-6">DE</span>
+                    <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div class="h-full w-1/3 bg-blue-500 rounded-full"></div>
+                    </div>
+                    <span class="text-xs text-gray-400">0:04/0:12</span>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="pencil" class="w-3 h-3 text-gray-400"></i></button>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="trash-2" class="w-3 h-3 text-red-400"></i></button>
+                  </div>
+                </div>
+                <div class="mt-3 flex items-center gap-3 text-xs">
+                  <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <i data-lucide="plus" class="w-3 h-3"></i> Neue Sprache
+                  </button>
+                  <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <i data-lucide="mic" class="w-3 h-3"></i> Audio aufnehmen
+                  </button>
+                  <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <i data-lucide="upload" class="w-3 h-3"></i> Datei hochladen
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sonderansagen Column -->
+            <div class="space-y-4">
+              <div class="flex items-center gap-2 pb-2 border-b border-gray-200">
+                <input type="checkbox" id="enableSonder" checked class="w-4 h-4 text-blue-600 rounded">
+                <label for="enableSonder" class="font-semibold text-gray-900">Sonderansagen</label>
+              </div>
+
+              <div class="border border-gray-200 rounded-lg p-3">
+                <div class="mb-3">
+                  <label class="block text-xs font-medium text-gray-500 mb-1">Gültig von</label>
+                  <input type="date" value="2025-01-01" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                </div>
+                <div class="mb-3">
+                  <label class="block text-xs font-medium text-gray-500 mb-1">Gültig bis</label>
+                  <input type="date" value="2025-12-31" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                </div>
+
+                <div class="space-y-2 mt-4">
+                  <div class="flex items-center gap-2">
+                    <button class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100">
+                      <i data-lucide="play" class="w-3 h-3 text-gray-600"></i>
+                    </button>
+                    <span class="text-xs text-gray-500 w-6">DE</span>
+                    <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div class="h-full w-1/3 bg-blue-500 rounded-full"></div>
+                    </div>
+                    <span class="text-xs text-gray-400">0:04/0:12</span>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="pencil" class="w-3 h-3 text-gray-400"></i></button>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="trash-2" class="w-3 h-3 text-red-400"></i></button>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <button class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100">
+                      <i data-lucide="play" class="w-3 h-3 text-gray-600"></i>
+                    </button>
+                    <span class="text-xs text-gray-500 w-6">Eng</span>
+                    <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div class="h-full w-1/3 bg-blue-500 rounded-full"></div>
+                    </div>
+                    <span class="text-xs text-gray-400">0:04/0:12</span>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="pencil" class="w-3 h-3 text-gray-400"></i></button>
+                    <button class="p-1 hover:bg-gray-100 rounded"><i data-lucide="trash-2" class="w-3 h-3 text-red-400"></i></button>
+                  </div>
+                </div>
+                <div class="mt-3 flex items-center gap-3 text-xs">
+                  <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <i data-lucide="mic" class="w-3 h-3"></i> Audio aufnehmen
+                  </button>
+                  <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                    <i data-lucide="upload" class="w-3 h-3"></i> Datei hochladen
+                  </button>
+                </div>
+
+                <button class="mt-4 w-full py-2 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:bg-gray-50 flex items-center justify-center gap-2">
+                  <i data-lucide="plus" class="w-4 h-4"></i>
+                  Neue Sonderansage hinzufügen
+                </button>
+              </div>
+            </div>
+
+            <!-- Display Column -->
+            <div class="space-y-4">
+              <div class="flex items-center gap-2 pb-2 border-b border-gray-200">
+                <input type="checkbox" id="enableDisplay" checked class="w-4 h-4 text-blue-600 rounded">
+                <label for="enableDisplay" class="font-semibold text-gray-900">Display</label>
+              </div>
+
+              <!-- VORNE -->
+              <div class="border border-gray-200 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-xs font-medium text-gray-500 uppercase">Vorne</span>
+                  <select class="text-xs border border-gray-300 rounded px-2 py-1">
+                    <option>Während der Fahrt</option>
+                    <option>Bei Ankunft</option>
+                  </select>
+                </div>
+                <div class="space-y-2">
+                  <div>
+                    <label class="text-xs text-gray-400">Deutsch</label>
+                    <div class="flex items-center gap-2">
+                      <input type="text" value="{LINIE} {ZIEL}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                      <button class="px-3 py-2 bg-gray-100 rounded-lg text-xs hover:bg-gray-200 flex items-center gap-1">
+                        <i data-lucide="tag" class="w-3 h-3"></i> Platzhalter
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="text-xs text-gray-400">ENG</label>
+                    <div class="flex items-center gap-2">
+                      <input type="text" value="{LINIE} {ZIEL}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                      <button class="px-3 py-2 bg-gray-100 rounded-lg text-xs hover:bg-gray-200 flex items-center gap-1">
+                        <i data-lucide="tag" class="w-3 h-3"></i> Platzhalter
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button class="mt-2 text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                  <i data-lucide="plus" class="w-3 h-3"></i> Neue Sprache hinzufügen
+                </button>
+              </div>
+
+              <!-- SEITEN -->
+              <div class="border border-gray-200 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-xs font-medium text-gray-500 uppercase">Seiten</span>
+                  <select class="text-xs border border-gray-300 rounded px-2 py-1">
+                    <option>Während der Fahrt</option>
+                  </select>
+                </div>
+                <div class="space-y-2">
+                  <div>
+                    <label class="text-xs text-gray-400">Deutsch</label>
+                    <div class="flex items-center gap-2">
+                      <input type="text" value="{LINIE} → {ZIEL}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                      <button class="px-3 py-2 bg-gray-100 rounded-lg text-xs hover:bg-gray-200 flex items-center gap-1">
+                        <i data-lucide="tag" class="w-3 h-3"></i> Platzhalter
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="text-xs text-gray-400">ENG</label>
+                    <div class="flex items-center gap-2">
+                      <input type="text" value="{LINIE} → {ZIEL}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                      <button class="px-3 py-2 bg-gray-100 rounded-lg text-xs hover:bg-gray-200 flex items-center gap-1">
+                        <i data-lucide="tag" class="w-3 h-3"></i> Platzhalter
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button class="mt-2 text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                  <i data-lucide="plus" class="w-3 h-3"></i> Neue Sprache hinzufügen
+                </button>
+              </div>
+
+              <!-- INNEN -->
+              <div class="border border-gray-200 rounded-lg p-3">
+                <div class="flex items-center justify-between mb-3">
+                  <span class="text-xs font-medium text-gray-500 uppercase">Innen</span>
+                  <select class="text-xs border border-gray-300 rounded px-2 py-1">
+                    <option>Bei Halt</option>
+                  </select>
+                </div>
+                <div class="space-y-2">
+                  <div>
+                    <label class="text-xs text-gray-400">Deutsch</label>
+                    <div class="flex items-center gap-2">
+                      <input type="text" value="Nächste Station: {STATION}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                      <button class="px-3 py-2 bg-gray-100 rounded-lg text-xs hover:bg-gray-200 flex items-center gap-1">
+                        <i data-lucide="tag" class="w-3 h-3"></i> Platzhalter
+                      </button>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="text-xs text-gray-400">ENG</label>
+                    <div class="flex items-center gap-2">
+                      <input type="text" value="Next stop: {STATION}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                      <button class="px-3 py-2 bg-gray-100 rounded-lg text-xs hover:bg-gray-200 flex items-center gap-1">
+                        <i data-lucide="tag" class="w-3 h-3"></i> Platzhalter
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <button class="mt-2 text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                  <i data-lucide="plus" class="w-3 h-3"></i> Neue Sprache hinzufügen
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Export View -->
-      <div id="view-export" class="view hidden">
+      <div id="view-export" class="view p-6">
         <div class="max-w-3xl mx-auto text-center py-12">
           <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <i data-lucide="download" class="w-8 h-8 text-blue-600"></i>
@@ -145,81 +559,6 @@
         </div>
       </div>
     </main>
-  </div>
-
-  <!-- Station Config Modal -->
-  <div id="stationModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-xl m-4">
-      <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-        <div>
-          <h3 class="text-lg font-bold text-gray-900" id="modalStationName">Station Name</h3>
-          <p class="text-sm text-gray-500">Configure display and audio settings</p>
-        </div>
-        <button onclick="closeStationModal()" class="p-2 hover:bg-gray-100 rounded-lg">
-          <i data-lucide="x" class="w-5 h-5 text-gray-400"></i>
-        </button>
-      </div>
-      
-      <div class="p-6 overflow-y-auto max-h-[60vh]">
-        <div class="space-y-6">
-          <!-- Basic Info -->
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Station Name</label>
-              <input type="text" id="editStationName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Short Name</label>
-              <input type="text" id="editStationShort" placeholder="e.g. Hbf" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
-          </div>
-
-          <!-- Display Settings -->
-          <div class="border-t border-gray-200 pt-6">
-            <h4 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <i data-lucide="monitor" class="w-4 h-4 text-gray-400"></i>
-              Display Settings
-            </h4>
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1">Front Display</label>
-                <input type="text" id="editDisplayFront" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1">Side Display</label>
-                <input type="text" id="editDisplaySide" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1">Rear Display</label>
-                <input type="text" id="editDisplayBack" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              </div>
-              <div>
-                <label class="block text-xs font-medium text-gray-500 mb-1">TFT Display</label>
-                <input type="text" id="editDisplayTFT" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              </div>
-            </div>
-          </div>
-
-          <!-- Audio Settings -->
-          <div class="border-t border-gray-200 pt-6">
-            <h4 class="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <i data-lucide="volume-2" class="w-4 h-4 text-gray-400"></i>
-              Audio Settings
-            </h4>
-            <div>
-              <label class="block text-xs font-medium text-gray-500 mb-1">Announcement Pattern</label>
-              <input type="text" id="editAudioPattern" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-              <p class="text-xs text-gray-400 mt-1">Use {STATION}, {LINE}, {DEST} as placeholders</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
-        <button onclick="closeStationModal()" class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg text-sm font-medium">Cancel</button>
-        <button onclick="saveStationConfig()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">Save Changes</button>
-      </div>
-    </div>
   </div>
 
   <!-- Add Route Modal -->
@@ -263,17 +602,17 @@
     ];
 
     let stations = [
-      { id: 1, name: "Central Station", short: "Hbf", type: "terminal", line: "42", audio: true, display: true, status: "complete", displayFront: "42 → Industrial Park", displaySide: "42 Industrial Park", displayBack: "Line 42", displayTFT: "Central Station | Hauptbahnhof", audioPattern: "Next stop: {STATION}" },
-      { id: 2, name: "Market Square", short: "", type: "regular", line: "42", audio: true, display: false, status: "incomplete", displayFront: "42 → Industrial Park", displaySide: "42 Industrial Park", displayBack: "Line 42", displayTFT: "", audioPattern: "Next stop: {STATION}" },
-      { id: 3, name: "University", short: "Uni", type: "junction", line: "42", audio: true, display: true, status: "complete", displayFront: "42 → Industrial Park", displaySide: "42 Industrial Park", displayBack: "Line 42", displayTFT: "University | Main Campus", audioPattern: "Next stop: {STATION}" },
-      { id: 4, name: "Hospital", short: "", type: "regular", line: "42", audio: true, display: false, status: "incomplete", displayFront: "", displaySide: "", displayBack: "", displayTFT: "", audioPattern: "" },
-      { id: 5, name: "Industrial Park", short: "", type: "terminal", line: "42", audio: true, display: true, status: "complete", displayFront: "42 Terminus", displaySide: "42 Industrial Park", displayBack: "Line 42", displayTFT: "Industrial Park | End of Line", audioPattern: "Final stop: {STATION}" },
-      { id: 6, name: "South Station", short: "Süd", type: "terminal", line: "15", audio: true, display: true, status: "complete", displayFront: "15 → Shopping Center", displaySide: "15 Shopping Center", displayBack: "Line 15", displayTFT: "", audioPattern: "Next stop: {STATION}" },
-      { id: 7, name: "City Hall", short: "", type: "regular", line: "15", audio: true, display: false, status: "incomplete", displayFront: "", displaySide: "", displayBack: "", displayTFT: "City Hall | Events & Tickets", audioPattern: "" },
-      { id: 8, name: "Shopping Center", short: "", type: "junction", line: "15", audio: true, display: true, status: "complete", displayFront: "15 Terminus", displaySide: "15 Shopping Center", displayBack: "Line 15", displayTFT: "", audioPattern: "Final stop: {STATION}" }
+      { id: 1, name: "Central Station", short: "Hbf", type: "terminal", line: "42", audio: true, display: true, status: "complete" },
+      { id: 2, name: "Market Square", short: "", type: "regular", line: "42", audio: true, display: false, status: "incomplete" },
+      { id: 3, name: "University", short: "Uni", type: "junction", line: "42", audio: true, display: true, status: "complete" },
+      { id: 4, name: "Hospital", short: "", type: "regular", line: "42", audio: true, display: false, status: "incomplete" },
+      { id: 5, name: "Industrial Park", short: "", type: "terminal", line: "42", audio: true, display: true, status: "complete" },
+      { id: 6, name: "South Station", short: "Süd", type: "terminal", line: "15", audio: true, display: true, status: "complete" },
+      { id: 7, name: "City Hall", short: "", type: "regular", line: "15", audio: true, display: false, status: "incomplete" },
+      { id: 8, name: "Shopping Center", short: "", type: "junction", line: "15", audio: true, display: true, status: "complete" }
     ];
 
-    let editingStation = null;
+    let editingStationId = null;
     let newRouteStops = [];
 
     // Init
@@ -297,8 +636,14 @@
         btn.classList.remove('bg-blue-50', 'text-blue-700');
         btn.classList.add('text-gray-600');
       });
-      document.getElementById('nav-' + view).classList.add('bg-blue-50', 'text-blue-700');
-      document.getElementById('nav-' + view).classList.remove('text-gray-600');
+      
+      if (view !== 'station-config') {
+        const navBtn = document.getElementById('nav-' + view);
+        if (navBtn) {
+          navBtn.classList.add('bg-blue-50', 'text-blue-700');
+          navBtn.classList.remove('text-gray-600');
+        }
+      }
       
       lucide.createIcons();
     }
@@ -362,7 +707,7 @@
             }">${s.status}</span>
           </td>
           <td class="px-4 py-3 text-right">
-            <button onclick="openStationModal(${s.id})" class="p-2 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600">
+            <button onclick="openStationConfig(${s.id})" class="p-2 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600">
               <i data-lucide="pencil" class="w-4 h-4"></i>
             </button>
           </td>
@@ -371,47 +716,23 @@
       lucide.createIcons();
     }
 
-    function openStationModal(id) {
-      editingStation = stations.find(s => s.id === id);
-      if (!editingStation) return;
+    function openStationConfig(id) {
+      editingStationId = id;
+      const station = stations.find(s => s.id === id);
+      if (!station) return;
       
-      document.getElementById('modalStationName').textContent = editingStation.name;
-      document.getElementById('editStationName').value = editingStation.name;
-      document.getElementById('editStationShort').value = editingStation.short;
-      document.getElementById('editDisplayFront').value = editingStation.displayFront;
-      document.getElementById('editDisplaySide').value = editingStation.displaySide;
-      document.getElementById('editDisplayBack').value = editingStation.displayBack;
-      document.getElementById('editDisplayTFT').value = editingStation.displayTFT;
-      document.getElementById('editAudioPattern').value = editingStation.audioPattern;
+      document.getElementById('configStationName').textContent = station.name;
+      document.getElementById('cfgRichtung').value = '';
+      document.getElementById('cfgLinie').value = station.line;
+      document.getElementById('cfgFahrtenster').value = '';
+      document.getElementById('cfgFahrzeugtyp').value = 'Alle Fahrzeugtypen';
       
-      document.getElementById('stationModal').classList.remove('hidden');
-      document.getElementById('stationModal').classList.add('flex');
-      lucide.createIcons();
+      showView('station-config');
     }
 
-    function closeStationModal() {
-      document.getElementById('stationModal').classList.add('hidden');
-      document.getElementById('stationModal').classList.remove('flex');
-      editingStation = null;
-    }
-
-    function saveStationConfig() {
-      if (!editingStation) return;
-      
-      editingStation.name = document.getElementById('editStationName').value;
-      editingStation.short = document.getElementById('editStationShort').value;
-      editingStation.displayFront = document.getElementById('editDisplayFront').value;
-      editingStation.displaySide = document.getElementById('editDisplaySide').value;
-      editingStation.displayBack = document.getElementById('editDisplayBack').value;
-      editingStation.displayTFT = document.getElementById('editDisplayTFT').value;
-      editingStation.audioPattern = document.getElementById('editAudioPattern').value;
-      editingStation.audio = !!editingStation.audioPattern;
-      editingStation.display = !!(editingStation.displayFront || editingStation.displaySide || editingStation.displayBack);
-      editingStation.status = (editingStation.audio && editingStation.display) ? 'complete' : 'incomplete';
-      
-      renderStations();
-      closeStationModal();
-      showToast('Station saved');
+    function saveStationConfigFull() {
+      showToast('Station configuration saved');
+      showView('stations');
     }
 
     function openAddRouteModal() {
