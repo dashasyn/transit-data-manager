@@ -142,15 +142,15 @@
             <div class="flex items-center gap-2">
               <button class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm font-medium text-gray-700">
                 <i data-lucide="tags" class="w-4 h-4"></i>
-                Platzhalter verwalten
+                Manage Placeholders
               </button>
               <button class="flex items-center gap-2 px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 text-sm font-medium">
                 <i data-lucide="trash-2" class="w-4 h-4"></i>
-                Löschen
+                Delete
               </button>
               <button onclick="saveStationConfigFull()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium">
                 <i data-lucide="save" class="w-4 h-4"></i>
-                Speichern
+                Save
               </button>
             </div>
           </div>
@@ -160,35 +160,35 @@
           <!-- Row 1: Basic Info -->
           <div class="grid grid-cols-4 gap-4">
             <div>
-              <label class="block text-xs font-medium text-gray-500 mb-1.5">Richtung</label>
-              <input type="text" id="cfgRichtung" placeholder="z.B. Stadtmitte" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <label class="block text-xs font-medium text-gray-500 mb-1.5">Direction</label>
+              <input type="text" id="cfgDirection" placeholder="e.g. City Center" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-500 mb-1.5">Linie</label>
-              <input type="text" id="cfgLinie" placeholder="z.B. 78" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <label class="block text-xs font-medium text-gray-500 mb-1.5">Line</label>
+              <input type="text" id="cfgLine" placeholder="e.g. 78" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-500 mb-1.5">Fahrtenster</label>
-              <input type="text" id="cfgFahrtenster" placeholder="z.B. 06:00-22:00" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <label class="block text-xs font-medium text-gray-500 mb-1.5">Service Hours</label>
+              <input type="text" id="cfgServiceHours" placeholder="e.g. 06:00-22:00" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
             <div>
-              <label class="block text-xs font-medium text-gray-500 mb-1.5">Fahrzeugtyp</label>
-              <select id="cfgFahrzeugtyp" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                <option>Alle Fahrzeugtypen</option>
+              <label class="block text-xs font-medium text-gray-500 mb-1.5">Vehicle Type</label>
+              <select id="cfgVehicleType" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                <option>All Vehicle Types</option>
                 <option>Standard</option>
-                <option>Gelenkbus</option>
-                <option>Doppeldecker</option>
+                <option>Articulated Bus</option>
+                <option>Double Decker</option>
               </select>
             </div>
           </div>
 
           <!-- Three Column Layout -->
           <div class="grid grid-cols-3 gap-6">
-            <!-- Ansagen Column -->
+            <!-- Announcements Column -->
             <div class="space-y-4">
               <div class="flex items-center gap-2 pb-2 border-b border-gray-200">
-                <input type="checkbox" id="enableAnsagen" checked class="w-4 h-4 text-blue-600 rounded">
-                <label for="enableAnsagen" class="font-semibold text-gray-900">Ansagen</label>
+                <input type="checkbox" id="enableAnnouncements" checked class="w-4 h-4 text-blue-600 rounded">
+                <label for="enableAnnouncements" class="font-semibold text-gray-900">Announcements</label>
               </div>
 
               <!-- Station -->
@@ -196,8 +196,8 @@
                 <div class="flex items-center justify-between mb-2">
                   <span class="text-xs font-medium text-gray-500 uppercase">Station</span>
                   <select class="text-xs border border-gray-300 rounded px-2 py-1">
-                    <option>Bei Ankunft</option>
-                    <option>Vor Abfahrt</option>
+                    <option>On Arrival</option>
+                    <option>Before Departure</option>
                   </select>
                 </div>
                 <div class="space-y-2">
@@ -217,7 +217,7 @@
                     <button class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100">
                       <i data-lucide="play" class="w-3 h-3 text-gray-600"></i>
                     </button>
-                    <span class="text-xs text-gray-500 w-6">Eng</span>
+                    <span class="text-xs text-gray-500 w-6">EN</span>
                     <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div class="h-full w-1/3 bg-blue-500 rounded-full"></div>
                     </div>
@@ -228,24 +228,24 @@
                 </div>
                 <div class="mt-3 flex items-center gap-3 text-xs">
                   <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                    <i data-lucide="plus" class="w-3 h-3"></i> Neue Sprache
+                    <i data-lucide="plus" class="w-3 h-3"></i> New Language
                   </button>
                   <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                    <i data-lucide="mic" class="w-3 h-3"></i> Audio aufnehmen
+                    <i data-lucide="mic" class="w-3 h-3"></i> Record Audio
                   </button>
                   <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                    <i data-lucide="upload" class="w-3 h-3"></i> Datei hochladen
+                    <i data-lucide="upload" class="w-3 h-3"></i> Upload File
                   </button>
                 </div>
               </div>
 
-              <!-- Nächste Station -->
+              <!-- Next Station -->
               <div class="border border-gray-200 rounded-lg p-3">
                 <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-medium text-gray-500 uppercase">Nächste Station</span>
+                  <span class="text-xs font-medium text-gray-500 uppercase">Next Station</span>
                   <select class="text-xs border border-gray-300 rounded px-2 py-1">
-                    <option>Vor Abfahrt</option>
-                    <option>Bei Ankunft</option>
+                    <option>Before Departure</option>
+                    <option>On Arrival</option>
                   </select>
                 </div>
                 <div class="space-y-2">
@@ -265,7 +265,7 @@
                     <button class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100">
                       <i data-lucide="play" class="w-3 h-3 text-gray-600"></i>
                     </button>
-                    <span class="text-xs text-gray-500 w-6">Eng</span>
+                    <span class="text-xs text-gray-500 w-6">EN</span>
                     <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div class="h-full w-1/3 bg-blue-500 rounded-full"></div>
                     </div>
@@ -276,23 +276,23 @@
                 </div>
                 <div class="mt-3 flex items-center gap-3 text-xs">
                   <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                    <i data-lucide="plus" class="w-3 h-3"></i> Neue Sprache
+                    <i data-lucide="plus" class="w-3 h-3"></i> New Language
                   </button>
                   <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                    <i data-lucide="mic" class="w-3 h-3"></i> Audio aufnehmen
+                    <i data-lucide="mic" class="w-3 h-3"></i> Record Audio
                   </button>
                   <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                    <i data-lucide="upload" class="w-3 h-3"></i> Datei hochladen
+                    <i data-lucide="upload" class="w-3 h-3"></i> Upload File
                   </button>
                 </div>
               </div>
 
-              <!-- Via Stationen -->
+              <!-- Via Stations -->
               <div class="border border-gray-200 rounded-lg p-3">
                 <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-medium text-gray-500 uppercase">Via Stationen</span>
+                  <span class="text-xs font-medium text-gray-500 uppercase">Via Stations</span>
                   <select class="text-xs border border-gray-300 rounded px-2 py-1">
-                    <option>Während der Fahrt</option>
+                    <option>During Journey</option>
                   </select>
                 </div>
                 <div class="space-y-2">
@@ -312,7 +312,7 @@
                     <button class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100">
                       <i data-lucide="play" class="w-3 h-3 text-gray-600"></i>
                     </button>
-                    <span class="text-xs text-gray-500 w-6">Eng</span>
+                    <span class="text-xs text-gray-500 w-6">EN</span>
                     <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div class="h-full w-1/3 bg-blue-500 rounded-full"></div>
                     </div>
@@ -323,23 +323,23 @@
                 </div>
                 <div class="mt-3 flex items-center gap-3 text-xs">
                   <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                    <i data-lucide="plus" class="w-3 h-3"></i> Neue Sprache
+                    <i data-lucide="plus" class="w-3 h-3"></i> New Language
                   </button>
                   <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                    <i data-lucide="mic" class="w-3 h-3"></i> Audio aufnehmen
+                    <i data-lucide="mic" class="w-3 h-3"></i> Record Audio
                   </button>
                   <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                    <i data-lucide="upload" class="w-3 h-3"></i> Datei hochladen
+                    <i data-lucide="upload" class="w-3 h-3"></i> Upload File
                   </button>
                 </div>
               </div>
 
-              <!-- Letzte Station -->
+              <!-- Last Station -->
               <div class="border border-gray-200 rounded-lg p-3">
                 <div class="flex items-center justify-between mb-2">
-                  <span class="text-xs font-medium text-gray-500 uppercase">Letzte Station</span>
+                  <span class="text-xs font-medium text-gray-500 uppercase">Last Station</span>
                   <select class="text-xs border border-gray-300 rounded px-2 py-1">
-                    <option>Bei Ankunft</option>
+                    <option>On Arrival</option>
                   </select>
                 </div>
                 <div class="space-y-2">
@@ -358,32 +358,32 @@
                 </div>
                 <div class="mt-3 flex items-center gap-3 text-xs">
                   <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                    <i data-lucide="plus" class="w-3 h-3"></i> Neue Sprache
+                    <i data-lucide="plus" class="w-3 h-3"></i> New Language
                   </button>
                   <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                    <i data-lucide="mic" class="w-3 h-3"></i> Audio aufnehmen
+                    <i data-lucide="mic" class="w-3 h-3"></i> Record Audio
                   </button>
                   <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                    <i data-lucide="upload" class="w-3 h-3"></i> Datei hochladen
+                    <i data-lucide="upload" class="w-3 h-3"></i> Upload File
                   </button>
                 </div>
               </div>
             </div>
 
-            <!-- Sonderansagen Column -->
+            <!-- Special Announcements Column -->
             <div class="space-y-4">
               <div class="flex items-center gap-2 pb-2 border-b border-gray-200">
-                <input type="checkbox" id="enableSonder" checked class="w-4 h-4 text-blue-600 rounded">
-                <label for="enableSonder" class="font-semibold text-gray-900">Sonderansagen</label>
+                <input type="checkbox" id="enableSpecial" checked class="w-4 h-4 text-blue-600 rounded">
+                <label for="enableSpecial" class="font-semibold text-gray-900">Special Announcements</label>
               </div>
 
               <div class="border border-gray-200 rounded-lg p-3">
                 <div class="mb-3">
-                  <label class="block text-xs font-medium text-gray-500 mb-1">Gültig von</label>
+                  <label class="block text-xs font-medium text-gray-500 mb-1">Valid From</label>
                   <input type="date" value="2025-01-01" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                 </div>
                 <div class="mb-3">
-                  <label class="block text-xs font-medium text-gray-500 mb-1">Gültig bis</label>
+                  <label class="block text-xs font-medium text-gray-500 mb-1">Valid Until</label>
                   <input type="date" value="2025-12-31" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
                 </div>
 
@@ -404,7 +404,7 @@
                     <button class="w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100">
                       <i data-lucide="play" class="w-3 h-3 text-gray-600"></i>
                     </button>
-                    <span class="text-xs text-gray-500 w-6">Eng</span>
+                    <span class="text-xs text-gray-500 w-6">EN</span>
                     <div class="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                       <div class="h-full w-1/3 bg-blue-500 rounded-full"></div>
                     </div>
@@ -415,16 +415,16 @@
                 </div>
                 <div class="mt-3 flex items-center gap-3 text-xs">
                   <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                    <i data-lucide="mic" class="w-3 h-3"></i> Audio aufnehmen
+                    <i data-lucide="mic" class="w-3 h-3"></i> Record Audio
                   </button>
                   <button class="text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                    <i data-lucide="upload" class="w-3 h-3"></i> Datei hochladen
+                    <i data-lucide="upload" class="w-3 h-3"></i> Upload File
                   </button>
                 </div>
 
                 <button class="mt-4 w-full py-2 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:bg-gray-50 flex items-center justify-center gap-2">
                   <i data-lucide="plus" class="w-4 h-4"></i>
-                  Neue Sonderansage hinzufügen
+                  Add Special Announcement
                 </button>
               </div>
             </div>
@@ -436,103 +436,103 @@
                 <label for="enableDisplay" class="font-semibold text-gray-900">Display</label>
               </div>
 
-              <!-- VORNE -->
+              <!-- FRONT -->
               <div class="border border-gray-200 rounded-lg p-3">
                 <div class="flex items-center justify-between mb-3">
-                  <span class="text-xs font-medium text-gray-500 uppercase">Vorne</span>
+                  <span class="text-xs font-medium text-gray-500 uppercase">Front</span>
                   <select class="text-xs border border-gray-300 rounded px-2 py-1">
-                    <option>Während der Fahrt</option>
-                    <option>Bei Ankunft</option>
+                    <option>During Journey</option>
+                    <option>On Arrival</option>
                   </select>
                 </div>
                 <div class="space-y-2">
                   <div>
-                    <label class="text-xs text-gray-400">Deutsch</label>
+                    <label class="text-xs text-gray-400">German</label>
                     <div class="flex items-center gap-2">
-                      <input type="text" value="{LINIE} {ZIEL}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                      <input type="text" value="{LINE} {DEST}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
                       <button class="px-3 py-2 bg-gray-100 rounded-lg text-xs hover:bg-gray-200 flex items-center gap-1">
-                        <i data-lucide="tag" class="w-3 h-3"></i> Platzhalter
+                        <i data-lucide="tag" class="w-3 h-3"></i> Placeholder
                       </button>
                     </div>
                   </div>
                   <div>
-                    <label class="text-xs text-gray-400">ENG</label>
+                    <label class="text-xs text-gray-400">English</label>
                     <div class="flex items-center gap-2">
-                      <input type="text" value="{LINIE} {ZIEL}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                      <input type="text" value="{LINE} {DEST}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
                       <button class="px-3 py-2 bg-gray-100 rounded-lg text-xs hover:bg-gray-200 flex items-center gap-1">
-                        <i data-lucide="tag" class="w-3 h-3"></i> Platzhalter
+                        <i data-lucide="tag" class="w-3 h-3"></i> Placeholder
                       </button>
                     </div>
                   </div>
                 </div>
                 <button class="mt-2 text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                  <i data-lucide="plus" class="w-3 h-3"></i> Neue Sprache hinzufügen
+                  <i data-lucide="plus" class="w-3 h-3"></i> Add Language
                 </button>
               </div>
 
-              <!-- SEITEN -->
+              <!-- SIDES -->
               <div class="border border-gray-200 rounded-lg p-3">
                 <div class="flex items-center justify-between mb-3">
-                  <span class="text-xs font-medium text-gray-500 uppercase">Seiten</span>
+                  <span class="text-xs font-medium text-gray-500 uppercase">Sides</span>
                   <select class="text-xs border border-gray-300 rounded px-2 py-1">
-                    <option>Während der Fahrt</option>
+                    <option>During Journey</option>
                   </select>
                 </div>
                 <div class="space-y-2">
                   <div>
-                    <label class="text-xs text-gray-400">Deutsch</label>
+                    <label class="text-xs text-gray-400">German</label>
                     <div class="flex items-center gap-2">
-                      <input type="text" value="{LINIE} → {ZIEL}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                      <input type="text" value="{LINE} → {DEST}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
                       <button class="px-3 py-2 bg-gray-100 rounded-lg text-xs hover:bg-gray-200 flex items-center gap-1">
-                        <i data-lucide="tag" class="w-3 h-3"></i> Platzhalter
+                        <i data-lucide="tag" class="w-3 h-3"></i> Placeholder
                       </button>
                     </div>
                   </div>
                   <div>
-                    <label class="text-xs text-gray-400">ENG</label>
+                    <label class="text-xs text-gray-400">English</label>
                     <div class="flex items-center gap-2">
-                      <input type="text" value="{LINIE} → {ZIEL}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                      <input type="text" value="{LINE} → {DEST}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
                       <button class="px-3 py-2 bg-gray-100 rounded-lg text-xs hover:bg-gray-200 flex items-center gap-1">
-                        <i data-lucide="tag" class="w-3 h-3"></i> Platzhalter
+                        <i data-lucide="tag" class="w-3 h-3"></i> Placeholder
                       </button>
                     </div>
                   </div>
                 </div>
                 <button class="mt-2 text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                  <i data-lucide="plus" class="w-3 h-3"></i> Neue Sprache hinzufügen
+                  <i data-lucide="plus" class="w-3 h-3"></i> Add Language
                 </button>
               </div>
 
-              <!-- INNEN -->
+              <!-- INTERIOR -->
               <div class="border border-gray-200 rounded-lg p-3">
                 <div class="flex items-center justify-between mb-3">
-                  <span class="text-xs font-medium text-gray-500 uppercase">Innen</span>
+                  <span class="text-xs font-medium text-gray-500 uppercase">Interior</span>
                   <select class="text-xs border border-gray-300 rounded px-2 py-1">
-                    <option>Bei Halt</option>
+                    <option>At Stop</option>
                   </select>
                 </div>
                 <div class="space-y-2">
                   <div>
-                    <label class="text-xs text-gray-400">Deutsch</label>
+                    <label class="text-xs text-gray-400">German</label>
                     <div class="flex items-center gap-2">
-                      <input type="text" value="Nächste Station: {STATION}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                      <input type="text" value="Next Station: {STATION}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
                       <button class="px-3 py-2 bg-gray-100 rounded-lg text-xs hover:bg-gray-200 flex items-center gap-1">
-                        <i data-lucide="tag" class="w-3 h-3"></i> Platzhalter
+                        <i data-lucide="tag" class="w-3 h-3"></i> Placeholder
                       </button>
                     </div>
                   </div>
                   <div>
-                    <label class="text-xs text-gray-400">ENG</label>
+                    <label class="text-xs text-gray-400">English</label>
                     <div class="flex items-center gap-2">
                       <input type="text" value="Next stop: {STATION}" class="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm">
                       <button class="px-3 py-2 bg-gray-100 rounded-lg text-xs hover:bg-gray-200 flex items-center gap-1">
-                        <i data-lucide="tag" class="w-3 h-3"></i> Platzhalter
+                        <i data-lucide="tag" class="w-3 h-3"></i> Placeholder
                       </button>
                     </div>
                   </div>
                 </div>
                 <button class="mt-2 text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1">
-                  <i data-lucide="plus" class="w-3 h-3"></i> Neue Sprache hinzufügen
+                  <i data-lucide="plus" class="w-3 h-3"></i> Add Language
                 </button>
               </div>
             </div>
@@ -722,10 +722,10 @@
       if (!station) return;
       
       document.getElementById('configStationName').textContent = station.name;
-      document.getElementById('cfgRichtung').value = '';
-      document.getElementById('cfgLinie').value = station.line;
-      document.getElementById('cfgFahrtenster').value = '';
-      document.getElementById('cfgFahrzeugtyp').value = 'Alle Fahrzeugtypen';
+      document.getElementById('cfgDirection').value = '';
+      document.getElementById('cfgLine').value = station.line;
+      document.getElementById('cfgServiceHours').value = '';
+      document.getElementById('cfgVehicleType').value = 'All Vehicle Types';
       
       showView('station-config');
     }
